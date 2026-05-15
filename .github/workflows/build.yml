@@ -1,4 +1,4 @@
-name: 自动打包三平台
+name: 自动打包+测试三平台
 
 on:
   push:
@@ -39,11 +39,29 @@ jobs:
           cd mycode
           pyinstaller -w -F fp_gui.py --add-data "fp_db.json:."
 
-      - name: Mac 打包
+      - name: macOS 打包
         if: matrix.os == 'macos-latest'
         run: |
           cd mycode
           pyinstaller -w -F fp_gui.py --add-data "fp_db.json:."
+
+      # 👇 新增：自动测试macOS程序是否能正常启动
+      - name: 测试macOS程序
+        if: matrix.os == 'macos-latest'
+        run: |
+          cd mycode/dist
+          chmod +x fp_gui
+          # 后台运行程序，等待5秒后检查是否还在运行
+          ./fp_gui &
+          PID=$!
+          sleep 5
+          if ps -p $PID > /dev/null; then
+            echo "✅ macOS程序启动成功！"
+            kill $PID
+          else
+            echo "❌ macOS程序启动失败！"
+            exit 1
+          fi
 
       - name: 上传打包文件
         uses: actions/upload-artifact@v4
