@@ -1,0 +1,8 @@
+requests
+httpx
+tldextract
+mmh3
+PySide6
+openpyxl
+matplotlib
+colorama
